@@ -1,0 +1,12 @@
+---
+interface Props { id: string; title: string; summary: string; tags: string[]; updatedAt: Date }
+const { id, title, summary, tags, updatedAt } = Astro.props;
+---
+
+<article class="card">
+  <h2><a href={`/wiki/${id}/`}>{title}</a></h2>
+  <p>{summary}</p>
+  <time datetime={updatedAt.toISOString()}>{updatedAt.toLocaleDateString("ja-JP")}</time>
+  <ul class="tags">{tags.map((tag) => <li><a class="tag" href={`/tags/${tag}/`}>{tag}</a></li>)}</ul>
+</article>
+

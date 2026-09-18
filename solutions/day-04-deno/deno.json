@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "start": "deno run --allow-read=resources.txt --allow-write=report.json --allow-net main.ts",
+    "check": "deno check main.ts resource_checker.ts && deno lint && deno fmt --check",
+    "test": "deno test"
+  },
+  "fmt": { "lineWidth": 100 }
+}

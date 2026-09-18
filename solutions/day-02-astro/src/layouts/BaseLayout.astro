@@ -1,0 +1,37 @@
+---
+interface Props { title: string; description?: string }
+const { title, description = "5日間の学びを残すTech Wiki" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title} | Tech Wiki</title>
+    <style is:global>
+      :root { color-scheme: light; --ink:#18212f; --muted:#5f6b7a; --line:#dce2e9; --accent:#0759b8; }
+      * { box-sizing:border-box; }
+      body { margin:0; font:16px/1.7 system-ui,sans-serif; color:var(--ink); background:#f5f7fa; }
+      header,main,footer { width:min(54rem,calc(100% - 2rem)); margin:auto; }
+      header { display:flex; justify-content:space-between; padding:1.2rem 0; }
+      nav { display:flex; gap:1rem; }
+      main { background:white; padding:clamp(1.2rem,4vw,3rem); border:1px solid var(--line); border-radius:1rem; }
+      footer { padding:2rem 0; color:var(--muted); }
+      a { color:var(--accent); }
+      .cards { display:grid; gap:1rem; padding:0; list-style:none; }
+      .card { border:1px solid var(--line); border-radius:.7rem; padding:1rem; }
+      .tags { display:flex; flex-wrap:wrap; gap:.5rem; padding:0; list-style:none; }
+      .tag { background:#e9f2ff; border-radius:999px; padding:.15rem .6rem; }
+      time { color:var(--muted); }
+      code { background:#eef1f4; padding:.1em .25em; }
+    </style>
+  </head>
+  <body>
+    <header><a href="/"><strong>Tech Wiki</strong></a><nav><a href="/">記事</a><a href="/about">About</a></nav></header>
+    <main><slot /></main>
+    <footer>Markdownから生成した個人用Wiki</footer>
+  </body>
+</html>
+

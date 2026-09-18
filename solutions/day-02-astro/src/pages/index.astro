@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import ArticleCard from "../components/ArticleCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const entries = (await getCollection("wiki", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
+const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
+---
+
+<BaseLayout title="記事一覧">
+  <h1>Tech Wiki</h1>
+  <p>5日間で試した技術を、あとで再現できる形で残します。</p>
+  <ul class="tags">{tags.map((tag) => <li><a class="tag" href={`/tags/${tag}/`}>{tag}</a></li>)}</ul>
+  <div class="cards">
+    {entries.map((entry) => <ArticleCard id={entry.id} {...entry.data} />)}
+  </div>
+</BaseLayout>
+

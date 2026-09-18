@@ -1,0 +1,23 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import ArticleCard from "../../components/ArticleCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("wiki", ({ data }) => !data.draft);
+  const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag },
+    props: { tag, entries: entries.filter((entry) => entry.data.tags.includes(tag)) },
+  }));
+}
+
+interface Props { tag: string; entries: CollectionEntry<"wiki">[] }
+const { tag, entries } = Astro.props;
+---
+
+<BaseLayout title={`タグ：${tag}`}>
+  <h1>タグ：{tag}</h1>
+  <div class="cards">{entries.map((entry) => <ArticleCard id={entry.id} {...entry.data} />)}</div>
+</BaseLayout>
+

@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "five-days-study-log-starter",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-18",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "five-days-study-log",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
+

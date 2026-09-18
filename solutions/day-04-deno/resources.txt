@@ -1,0 +1,7 @@
+# 公式資料を1行に一つ指定する。
+https://docs.deno.com/
+https://hono.dev/docs/
+https://docs.astro.build/
+https://htmx.org/docs/
+https://doc.rust-lang.org/book/
+

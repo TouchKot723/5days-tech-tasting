@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "start": "deno run main.ts",
+    "check": "deno check main.ts && deno lint && deno fmt --check",
+    "test": "deno test"
+  },
+  "fmt": { "lineWidth": 100 }
+}
