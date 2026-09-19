@@ -41,8 +41,6 @@ describe("validateStudyLogInput", () => {
     ).toBe(false);
   });
 
-
-
   // 異常系：日付フォーマットがおかしいものは弾くこと
   it("rejects an invalid date format", () => {
     expect(
@@ -50,6 +48,17 @@ describe("validateStudyLogInput", () => {
         technology: "Hono",
         minutes: 10,
         learnedOn: "09/19",
+      }).ok
+    ).toBe(false);
+  });
+
+  // 存在しないカレンダー日付（例: 2026-02-31）は弾くこと！
+  it("rejects non-existent calendar dates", () => {
+    expect(
+      validateStudyLogInput({
+        technology: "Hono",
+        minutes: 60,
+        learnedOn: "2026-02-31",
       }).ok
     ).toBe(false);
   });

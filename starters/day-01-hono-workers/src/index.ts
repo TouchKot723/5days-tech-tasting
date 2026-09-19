@@ -1,6 +1,7 @@
 import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
 import { StudyLogRow, StudyLog } from "./types";
-import { validateStudyLogInput } from "./validation";
+import { studyLogSchema } from "./validation";
 
 type Env = { Bindings: { DB: D1Database } };
 
@@ -55,29 +56,14 @@ app.get("/api/logs/:id", async (c) => {
   return c.json(toStudyLog(row));
 })
 
-app.post("/api/logs", async (c) => {
-  // JSONのパース
-  let body: unknown;
-  try {
-    body = await c.req.json();
-  } catch {
-    return c.json({ error: "Body must be valid JSON" }, 400);
-  }
-
-  // バリデーション
-  const parsed = validateStudyLogInput(body);
-  if (!parsed.ok) {
-    return c.json({ error: "Invalid input", details: parsed.errors }, 400);
-  }
-
-  // DBへINSERT
-  const { technology, minutes, note, learnedOn } = parsed.value;
+app.post("/api/logs", zValidator("json", studyLogSchema), async (c) => {
+  //既にバリデーションチェックが済んだ状態になる
+  const { technology, minutes, note, learnedOn } = c.req.valid("json");
   const createdAt = new Date().toISOString();
 
   const insertResult = await c.env.DB.prepare(
     "INSERT INTO study_logs (technology, minutes, note, learned_on, created_at) VALUES (?, ?, ?, ?, ?)"
   ).bind(technology, minutes, note, learnedOn, createdAt).run();
-
 
   //  INSERT されたばかりの最新データを、自動採番された ID から取り直す！
   const lastId = insertResult.meta.last_row_id;
@@ -94,22 +80,9 @@ app.post("/api/logs", async (c) => {
   return c.json(toStudyLog(row), 201);
 })
 
-app.put("/api/logs/:id", async (c) => {
+app.put("/api/logs/:id", zValidator("json", studyLogSchema), async (c) => {
   const id = c.req.param("id");
-
-  let body: unknown;
-  try {
-    body = await c.req.json();
-  } catch {
-    return c.json({ error: "Body must be valid JSON" }, 400);
-  }
-
-  const parsed = validateStudyLogInput(body);
-  if (!parsed.ok) {
-    return c.json({ error: "Invalid input", details: parsed.errors }, 400);
-  }
-
-  const { technology, minutes, note, learnedOn } = parsed.value;
+  const { technology, minutes, note, learnedOn } = c.req.valid("json");
 
   const result = await c.env.DB.prepare(
     "UPDATE study_logs SET technology = ?, minutes = ?, note = ?, learned_on = ? WHERE id = ?"
