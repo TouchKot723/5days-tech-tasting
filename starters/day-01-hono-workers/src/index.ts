@@ -97,6 +97,42 @@ app.post("/api/logs", async (c) => {
   return c.json(toStudyLog(row), 201);
 })
 
+app.put("/api/logs/:id", async (c) => {
+  const id = c.req.param("id");
+
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Body must be valid JSON" }, 400);
+  }
+
+  const parsed = validateStudyLogInput(body);
+  if (!parsed.ok) {
+    return c.json({ error: "Invalid input", details: parsed.errors }, 400);
+  }
+
+  const { technology, minutes, note, learnedOn } = parsed.value;
+
+  const result = await c.env.DB.prepare(
+    "UPDATE study_logs SET technology = ?, minutes = ?, note = ?, learned_on = ? WHERE id = ?"
+  ).bind(technology, minutes, note, learnedOn, id).run();
+
+  if (result.meta.changes === 0) {
+    return c.json({ error: "Study log not found" }, 404);
+  }
+
+  const row = await c.env.DB.prepare(
+    "SELECT id, technology, minutes, note, learned_on, created_at FROM study_logs WHERE id = ?"
+  ).bind(id).first<StudyLogRow>();
+
+  if (!row) {
+    return c.json({ error: "Failed to retrieve updated log" }, 500);
+  }
+
+  return c.json(toStudyLog(row));
+});
+
 app.delete("/api/logs/:id", async (c) => {
   const id = c.req.param("id");
 
