@@ -22,7 +22,6 @@ app.get("/", (c) => c.text("Hello Hono!"));
 //**`GET /api/hello`**：`{"message": "Hello Hono!"}` の JSON を返す
 app.get("/api/hello", (c) => {
   return c.json({
-    ok: true,
     message: 'Hello, Hono!',
   });
 });
@@ -31,12 +30,10 @@ app.get("/api/hello", (c) => {
 app.get("/api/hello/:name", (c) => {
   const name = c.req.param("name");
   return c.json({
-    ok: true,
     message: `Hello ${name}!`
   });
 });
 
-// TODO: 学習ログAPIを実装する。
 app.get("/api/logs", async (c) => {
   const result = await c.env.DB.prepare(
     "SELECT id, technology, minutes, note, learned_on, created_at FROM study_logs ORDER BY learned_on DESC, id DESC"
@@ -70,7 +67,7 @@ app.post("/api/logs", async (c) => {
   // バリデーション
   const parsed = validateStudyLogInput(body);
   if (!parsed.ok) {
-    return c.json({ error: "Inbalid input", details: parsed.errors }, 400);
+    return c.json({ error: "Invalid input", details: parsed.errors }, 400);
   }
 
   // DBへINSERT
@@ -146,8 +143,6 @@ app.delete("/api/logs/:id", async (c) => {
 
   return c.body(null, 204);
 });
-
-app.all("/api/*", (c) => c.json({ error: "Not implemented" }, 501));
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 
