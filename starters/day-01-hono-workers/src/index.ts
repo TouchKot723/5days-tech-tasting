@@ -97,6 +97,20 @@ app.post("/api/logs", async (c) => {
   return c.json(toStudyLog(row), 201);
 })
 
+app.delete("/api/logs/:id", async (c) => {
+  const id = c.req.param("id");
+
+  const result = await c.env.DB.prepare(
+    "DELETE FROM study_logs WHERE id = ?"
+  ).bind(id).run();
+
+  if (result.meta.changes === 0) {
+    return c.json({ error: "Study log not found" }, 404);
+  }
+
+  return c.body(null, 204);
+});
+
 app.all("/api/*", (c) => c.json({ error: "Not implemented" }, 501));
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
