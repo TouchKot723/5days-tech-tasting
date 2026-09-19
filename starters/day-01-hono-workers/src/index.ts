@@ -45,6 +45,18 @@ app.get("/api/logs", async (c) => {
   return c.json(logs);
 });
 
+app.get("/api/logs/:id", async (c) => {
+  const id = c.req.param("id");
+
+  const row = await c.env.DB.prepare(
+    "SELECT id, technology, minutes, note, learned_on, created_at FROM study_logs WHERE id = ?"
+  ).bind(id).first<StudyLogRow>();
+
+  if (!row) return c.json({ error: "Study log not found." }, 404);
+
+  return c.json(toStudyLog(row));
+})
+
 app.all("/api/*", (c) => c.json({ error: "Not implemented" }, 501));
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
