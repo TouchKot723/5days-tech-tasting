@@ -35,7 +35,7 @@ const { Content } = await render(post);
         <div>
             {post.data.tags.map((tag) => (
                 <a href={`/tags/${tag}/`}>#{tag}</a>
-            ))};
+            ))}
         </div>
 
         <Content />
