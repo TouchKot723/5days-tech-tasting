@@ -8,7 +8,5 @@ updatedAt: 2026-09-20
 draft: false
 ---
 
-# Honoのルーティング
-
 Honoは軽量で高速なWebフレームワークだよ！
 Cloudflare Workersとの相性もバツグン！
