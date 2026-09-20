@@ -1,0 +1,51 @@
+---
+import { getCollection,type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+    const posts = await getCollection("wiki", ({ data }) => {
+        return data.draft !== true;
+    })
+
+    //各.mdに含まれているタグを取得
+    const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+    return tags.map((tag) => ({
+        params: { tag },
+        props: {
+            tag,
+            // タグに該当する投稿一覧
+            posts: posts.filter((post) => post.data.tags.includes(tag)),
+        },
+    }));
+}
+
+interface Props {
+    tag: string;
+    // タグに該当する投稿は複数あるので[]をつける
+    posts: CollectionEntry<"wiki">[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`#${tag} がついた記事一覧`}>
+    <a href="/">記事一覧へ</a>
+
+    <h1># {tag} がついた記事</h1>
+    <p>{posts.length}件の記事がヒットしました。</p>
+
+    <ul>
+        {posts.map((post)=> (
+            <li>
+                <a href={`/wiki/${post.id}`}>
+                    <h2>{post.data.title}</h2>
+                </a>
+                <p>{post.data.summary}</p>
+                <time datetime={post.data.updatedAt.toISOString()}>
+                    {post.data.updatedAt.toLocaleDateString("ja-JP")}
+                </time>
+            </li>
+        ))}
+    </ul>
+</BaseLayout>
