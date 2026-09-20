@@ -1,0 +1,190 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("wiki", ({ data }) => {
+    return data.draft !== true;
+  });
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"wiki">;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+//markdownとしてコピーする際に貼り付けるテキスト生成処理
+const mdForCopy = `
+# ${post.data.title}
+${post.data.summary}
+- 更新日: ${post.data.updatedAt.toLocaleDateString("ja-JP")}
+- タグ: ${post.data.tags.map((tag) => `#${tag}`).join(" ")}
+
+${post.body ?? ""}`.trim();
+---
+
+<BaseLayout title={post.data.title}>
+  <article>
+    <a href="/">記事へ戻る</a>
+
+    <h1>{post.data.title}</h1>
+    <p>{post.data.summary}</p>
+
+    <div class="article-meta">
+      <time datetime={post.data.updatedAt.toISOString()}>
+        更新日: {post.data.updatedAt.toLocaleDateString("ja-JP")}
+      </time>
+
+      <div class="article-tags">
+        {post.data.tags.map((tag) => <a href={`/tags/${tag}/`}>#{tag}</a>)}
+      </div>
+
+      <button
+        type="button" 
+        class="copy-markdown-button" 
+        data-markdown={mdForCopy ?? ""}
+      >
+        Markdownとしてコピー
+      </button>
+    </div>
+
+    <Content />
+  </article>
+
+  <script>
+    const button = document.querySelector<HTMLButtonElement>(
+      ".copy-markdown-button",
+    );
+
+    const defaultLabel = button?.textContent ?? "Markdownをコピー";
+    let resetTimer: number | undefined;
+
+
+    button?.addEventListener("click", async () => {
+      const md = button.dataset.markdown;
+      
+      if (!md) return;
+      await navigator.clipboard.writeText(md);
+      // コピー完了の通知を表示する
+      button.textContent = "コピーしました！";
+      
+      if (resetTimer !== undefined) {
+        window.clearTimeout(resetTimer);
+      }
+
+      resetTimer = window.setTimeout(() => {
+        button.textContent = defaultLabel;
+      }, 2000);
+
+    })
+  </script>
+</BaseLayout>
+
+<style is:global>
+  article h2 {
+    border-bottom: 2px solid var(--color-primary-light);
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    padding-bottom: 0.2rem;
+  }
+
+  article h3 {
+    border-bottom: 2px solid var(--color-primary-light);
+    font-size: 1.35rem;
+    margin-top: 1rem;
+  }
+
+  article p,
+  article li {
+    line-height: 1.9;
+  }
+
+  article code {
+    background: var(--color-primary-light);
+    border-radius: 0.25rem;
+    font-family:
+      "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+    padding: 0.15rem 0.35rem;
+  }
+
+  article pre {
+    background: #282c34;
+    border-radius: 0.5rem;
+    color: var(--color-primary-light);
+    overflow-x: auto;
+    padding: 1.25rem;
+  }
+
+  article pre code {
+    background: transparent;
+    padding: 0;
+  }
+
+  article blockquote {
+    background: oklch(98.5% 0 none);
+    border-left: 4px solid oklch(89.2% 0.058 10.001);
+    color: var(--color-muted);
+    margin: 1.5rem 0;
+    padding: 0.1rem 1.5rem;
+  }
+
+  article img {
+    border-radius: 0.25rem;
+    display: block;
+    height: auto;
+    margin: 1.5rem auto;
+    max-width: 100%;
+  }
+
+  article figure {
+    margin: 2rem 0;
+  }
+
+  article figcaption {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    margin-top: -1rem;
+    text-align: center;
+  }
+
+  .article-meta {
+    align-items: center;
+    color: var(--color-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0 2rem;
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .copy-markdown-button {
+    background: var(--color-primary);
+    border: 0;
+    border-radius: 999px;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    padding: 0.2rem 0.9rem;
+  }
+
+  .copy-markdown-button:hover {
+    background: #a61e64;
+  }
+
+  .copy-markdown-button:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+</style>

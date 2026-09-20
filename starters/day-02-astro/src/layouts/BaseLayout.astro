@@ -1,0 +1,130 @@
+---
+// ページごとに違うtitleをPropsで受け取る
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Tech Wiki</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="site-nav" aria-label="主要ナビゲーション">
+        <a class="site-logo" href="/">Tech Wiki</a>
+
+        <div class="site-links">
+          <a href="/">ホーム</a>
+          <a href="/tags/">タグ一覧</a>
+          <a href="/about">このページについて</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="site-main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p><small>&copy; 2026 Tech Wiki</small></p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --color-bg: #fff8fa;
+    --color-surface: #ffffff;
+    --color-text: #333333;
+    --color-muted: #6b7280;
+    --color-primary: #d63384;
+    --color-primary-light: #ffe3ee;
+    --color-border: #f1d5e1;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  a {
+    color: var(--color-primary);
+  }
+
+  a:hover {
+    color: #a61e64;
+  }
+
+  .site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-nav {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    max-width: 56rem;
+    padding: 1rem;
+  }
+
+  .site-logo {
+    color: var(--color-text);
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .site-links a {
+    text-decoration: none;
+  }
+
+  .site-main {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    margin: 2rem auto;
+    max-width: 56rem;
+    padding: 2rem;
+    width: calc(100% - 2rem);
+  }
+
+  .site-footer {
+    color: var(--color-muted);
+    margin: 2rem 1rem;
+    text-align: center;
+  }
+
+  @media (max-width: 40rem) {
+    .site-nav {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .site-main {
+      margin: 1rem auto;
+      padding: 1.25rem;
+    }
+  }
+</style>

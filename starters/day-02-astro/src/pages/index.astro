@@ -1,15 +1,92 @@
 ---
-// TODO: Content Collectionから公開記事を取得する。
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const posts = await getCollection("wiki", ({ data }) => {
+  return data.draft !== true;
+});
+
+posts.sort((a, b) => b.data.updatedAt.getTime() - a.data.updatedAt.getTime());
+
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head><meta charset="utf-8" /><title>Tech Wiki</title></head>
-  <body>
-    <main>
-      <h1>Tech Wiki</h1>
-      <p>TODO: 記事一覧を表示する。</p>
-    </main>
-  </body>
-</html>
+<!-- BaseLayoutで全体を包み込んでtitleを渡す -->
+<BaseLayout title="ホーム">
+  <!-- ここに書いた中身が、BaseLayoutの <slot /> の場所にはまるよ -->
+  <h2>記事一覧</h2>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li class="post-item">
+          <a href={`/wiki/${post.id}`}>
+            <h3>{post.data.title}</h3>
+          </a>
+          <p>{post.data.summary}</p>
+          <small>{post.data.updatedAt.toLocaleDateString("ja-JP")}</small>
+          <div class="tags">
+            {post.data.tags.map((tag) => (
+              <a href={`/tags/${tag}/`} class="tag-badge">
+                #{tag}
+              </a>
+            ))}
+          </div>
+        </li>
+      ))
+    }
+  </ul>
 
+  <hr />
+  <h2>タグ一覧</h2>
+  <div class="tags-container">
+    {
+      tags.map((tag) => (
+        <a href={`/tags/${tag}/`} class="tag-badge">
+          #{tag}
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+  }
+  .post-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+  }
+  .post-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+  }
+  .post-item a {
+    text-decoration: none;
+  }
+  .post-item a:hover h3 {
+    color: #e63946;
+  }
+  .tags {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .tag-badge {
+    background: #ffe3e8;
+    color: #d63384;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+  .tag-badge:hover {
+    background: #ffccd5;
+  }
+  .tags-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+</style>
