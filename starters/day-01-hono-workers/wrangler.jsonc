@@ -7,9 +7,8 @@
     {
       "binding": "DB",
       "database_name": "five-days-study-log",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "49bbd44f-a912-4874-a605-cd35be1e213a",
       "migrations_dir": "migrations"
     }
   ]
 }
-
