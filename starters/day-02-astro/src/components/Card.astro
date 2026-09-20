@@ -1,0 +1,47 @@
+---
+interface Props {
+    title: string;
+    body: string;
+    href?: string;
+}
+
+const { title, body, href = "#" } = Astro.props; 
+---
+
+<li class="link-card">
+    <a href={href}>
+        <h3>{title}</h3>
+        <p>{body}</p>
+    </a>
+</li>
+
+<style>
+    .link-card {
+        list-style: none;
+        display: flex;
+        padding: 0.8rem;
+        background-color: #fdfdfd;
+        border: 2px solid #ffccd5;
+        border-radius: 8px;
+        margin-bottom: 0.8rem;
+        margin-right: 1.5rem;
+        transition: transform 0.2s ease;        
+    }
+    .link-card:hover {
+        transform: translateY(-2px);
+    }
+    a {
+        text-decoration: none;
+        color: #333;
+        width: 100%;
+    }
+    h3 {
+        margin: 0;
+        color: #d63384;
+    }
+    p {
+        margin: 0.5rem 0 0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+</style>

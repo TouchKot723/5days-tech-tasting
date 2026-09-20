@@ -1,15 +1,25 @@
 ---
-// TODO: Content Collectionから公開記事を取得する。
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head><meta charset="utf-8" /><title>Tech Wiki</title></head>
-  <body>
-    <main>
-      <h1>Tech Wiki</h1>
-      <p>TODO: 記事一覧を表示する。</p>
-    </main>
-  </body>
-</html>
+<!-- BaseLayoutで全体を包み込んでtitleを渡す -->
+<BaseLayout title="ホーム">
+  <!-- ここに書いた中身が、BaseLayoutの <slot /> の場所にはまるよ -->
+  <h2>Tech Wikiへようこそ！</h2>
+  <p>Astroを勉強中だよっ☆</p>
 
+  <ul style="padding; 0;">
+    <Card 
+      href="/about"
+      title="このWikiについて"
+      body="Tech Wikiの目的について紹介しています"
+    />
+    <Card 
+      href="https://docs.astro.build"
+      title="Astro公式ドキュメント"
+      body="公式の最新情報はこちらから！"
+    />
+  </ul>
+
+</BaseLayout>
