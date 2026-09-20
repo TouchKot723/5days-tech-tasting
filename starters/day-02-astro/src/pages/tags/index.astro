@@ -1,0 +1,35 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = await getCollection("wiki", ({ data }) => {
+  return data.draft !== true;
+});
+
+//各.mdに含まれているタグを取得
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+const tagSummaries = tags
+  .map((tag) => ({
+    name: tag,
+    count: posts.filter((post) => post.data.tags.includes(tag)).length,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+---
+
+<BaseLayout title="タグ一覧ページ">
+  <a href="/">記事一覧に戻る</a>
+
+  <h1>タグ一覧</h1>
+
+  <ul>
+    {
+      tagSummaries.map((tag) => (
+        <li>
+          <a href={`/tags/${tag.name}`}>#{tag.name}</a>
+          <span> ({tag.count}件)</span>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
