@@ -3,47 +3,77 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
-    const posts = await getCollection("wiki", ({ data }) => {
-        return data.draft !== true;
-    })
+  const posts = await getCollection("wiki", ({ data }) => {
+    return data.draft !== true;
+  });
 
-    return posts.map((post) => ({
-        params: { slug: post.id },
-        props: { post },
-    }));
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
 }
 
 interface Props {
-    post: CollectionEntry<"wiki">;
+  post: CollectionEntry<"wiki">;
 }
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+//markdownとしてコピーする際に貼り付けるテキスト生成処理
+const mdForCopy = `
+# ${post.data.title}
+${post.data.summary}
+- 更新日: ${post.data.updatedAt.toLocaleDateString("ja-JP")}
+- タグ: ${post.data.tags.map((tag) => `#${tag}`).join(" ")}
+
+${post.body ?? ""}`.trim();
 ---
 
 <BaseLayout title={post.data.title}>
-    <article>
-        <a href="/">記事へ戻る</a>
+  <article>
+    <a href="/">記事へ戻る</a>
 
-        <h1>{post.data.title}</h1>
-        <p>{post.data.summary}</p>
+    <h1>{post.data.title}</h1>
+    <p>{post.data.summary}</p>
 
-        <time datetime={post.data.updatedAt.toISOString()}>
-            更新日: {post.data.updatedAt.toLocaleDateString("ja-JP")}
-        </time>
-        
-        <div>
-            {post.data.tags.map((tag) => (
-                <a href={`/tags/${tag}/`}>#{tag}</a>
-            ))}
-        </div>
+    <div class="article-meta">
+      <time datetime={post.data.updatedAt.toISOString()}>
+        更新日: {post.data.updatedAt.toLocaleDateString("ja-JP")}
+      </time>
 
-        <Content />
-    </article>
+      <div class="article-tags">
+        {post.data.tags.map((tag) => <a href={`/tags/${tag}/`}>#{tag}</a>)}
+      </div>
+
+      <button
+        type="button" 
+        class="copy-markdown-button" 
+        data-markdown={mdForCopy ?? ""}
+      >
+        Markdownとしてコピー
+      </button>
+    </div>
+
+    <Content />
+  </article>
+
+  <script>
+    const button = document.querySelector<HTMLButtonElement>(
+      ".copy-markdown-button",
+    );
+
+    button?.addEventListener("click", async () => {
+      const md = button.dataset.markdown;
+      
+      if (!md) return;
+      await navigator.clipboard.writeText(md);
+    })
+  </script>
 </BaseLayout>
 
 <style is:global>
-      article h2 {
+  article h2 {
     border-bottom: 2px solid var(--color-primary-light);
     font-size: 1.5rem;
     margin-top: 1rem;
@@ -51,7 +81,7 @@ const { Content } = await render(post);
   }
 
   article h3 {
-    border-bottom: 2px solid var(--color-primary-light);    
+    border-bottom: 2px solid var(--color-primary-light);
     font-size: 1.35rem;
     margin-top: 1rem;
   }
@@ -64,7 +94,8 @@ const { Content } = await render(post);
   article code {
     background: var(--color-primary-light);
     border-radius: 0.25rem;
-    font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    font-family:
+      "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
     padding: 0.15rem 0.35rem;
   }
 
@@ -106,5 +137,39 @@ const { Content } = await render(post);
     font-size: 0.9rem;
     margin-top: -1rem;
     text-align: center;
+  }
+
+  .article-meta {
+    align-items: center;
+    color: var(--color-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0 2rem;
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .copy-markdown-button {
+    background: var(--color-primary);
+    border: 0;
+    border-radius: 999px;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    padding: 0.2rem 0.9rem;
+  }
+
+  .copy-markdown-button:hover {
+    background: #a61e64;
+  }
+
+  .copy-markdown-button:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
   }
 </style>
